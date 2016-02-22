@@ -1,16 +1,36 @@
 package rz.rasel.installinbackgroundsample;
 
+import android.app.ActionBar;
+import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,13 +51,73 @@ public class InstallInBackgroundSample extends AppCompatActivity {
     //|------------------------------------|
     public static final String TAG = "InstallInBackground";
     private Context context;
+    private Toolbar mToolbar;
 
+    //private Toolbar toolbar;
     //|------------------------------------|
     //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_install_in_background_sample);
+        //|------------------------------------|
+        /*toolbar = (Toolbar) findViewById(R.id.tool_bar); // Attaching the layout to the toolbar object
+        setSupportActionBar(toolbar);*/
+        /*ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);*/
+        //ActionBar actionBar = getSupportActionBar();
+        /*getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_launcher);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);*/
+        //|------------------------------------|
+
+        //For Toolbar (Action bar) start
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setContentInsetsAbsolute(0, 0);
+        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
+
+        mToolbar.setSubtitle("Sub");
+        mToolbar.setSubtitleTextColor(Color.parseColor("#000000"));
+
+
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //mToolbar.setNavigationIcon(R.drawable.ic_back_arrow);
+        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        mToolbar.setLogo(R.mipmap.ic_launcher);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "setNavigationOnClickListener", Toast.LENGTH_LONG).show();
+                onBackPressed();
+            }
+        });
+        getSupportActionBar().setTitle("Event Details");
+        mToolbar.setLogoDescription("Rz Rasel");
+        mToolbar.setTitleTextColor(Color.parseColor("#ff0000"));
+        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        mToolbar.setNavigationContentDescription("Rz Rasel");
+        //mToolbar.inflateMenu(R.menu.main);
+        //|------------------------------------|
+        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "setNavigationOnClickListener", Toast.LENGTH_LONG).show();
+                onBackPressed();
+            }
+        });
+        //|------------------------------------|
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(getApplicationContext(), "setOnMenuItemClickListener", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
         //|------------------------------------|
         context = this;
         //|------------------------------------|
@@ -84,6 +165,148 @@ public class InstallInBackgroundSample extends AppCompatActivity {
             logError(e);
         }
         //|------------------------------------|
+        addToolbarSearchBox();
+        //|------------------------------------|
+    }
+
+    //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+    public void onBackPressed() {
+        //
+    }
+
+    //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+    public void addToolbarSearchBox() {
+        LinearLayout searchContainer = (LinearLayout) findViewById(R.id.search_container);
+        final EditText toolbarSearchView = (EditText) findViewById(R.id.search_view);
+        final ImageView searchClearButton = (ImageView) findViewById(R.id.search_clear);
+
+        // Setup search container view
+        try {
+            // Set cursor colour to white
+            // http://stackoverflow.com/a/26544231/1692770
+            // https://github.com/android/platform_frameworks_base/blob/kitkat-release/core/java/android/widget/TextView.java#L562-564
+            Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
+            f.setAccessible(true);
+            f.set(toolbarSearchView, R.mipmap.ic_launcher);
+        } catch (Exception ignored) {
+        }
+
+        // Search text changed listener
+        toolbarSearchView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                /*Fragment mainFragment = getFragmentManager().findFragmentById(R.id.container);
+                if (mainFragment != null && mainFragment instanceof MainListFragment) {
+                    ((MainListFragment) mainFragment).search(s.toString());
+                }*/
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        // Clear search text when clear button is tapped
+        searchClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toolbarSearchView.setText("");
+            }
+        });
+
+        // Hide the search view
+        searchContainer.setVisibility(View.GONE);
+    }
+
+    //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+    public void addToolbarSearchBox_not_work() {
+        // Setup search container view
+        LinearLayout searchContainer = new LinearLayout(this);
+        Toolbar.LayoutParams containerParams = new Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        containerParams.gravity = Gravity.CENTER_VERTICAL;
+        searchContainer.setLayoutParams(containerParams);
+
+        // Setup search view
+        final EditText toolbarSearchView = new EditText(this);
+        // Set width / height / gravity
+        int[] textSizeAttr = new int[]{android.R.attr.actionBarSize};
+        int indexOfAttrTextSize = 0;
+        TypedArray a = obtainStyledAttributes(new TypedValue().data, textSizeAttr);
+        int actionBarHeight = a.getDimensionPixelSize(indexOfAttrTextSize, -1);
+        a.recycle();
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, actionBarHeight);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        params.weight = 1;
+        toolbarSearchView.setLayoutParams(params);
+
+        // Setup display
+        toolbarSearchView.setBackgroundColor(Color.TRANSPARENT);
+        toolbarSearchView.setPadding(2, 0, 0, 0);
+        toolbarSearchView.setTextColor(Color.WHITE);
+        toolbarSearchView.setGravity(Gravity.CENTER_VERTICAL);
+        toolbarSearchView.setSingleLine(true);
+        toolbarSearchView.setImeActionLabel("Search", EditorInfo.IME_ACTION_UNSPECIFIED);
+        toolbarSearchView.setHint("Search");
+        toolbarSearchView.setHintTextColor(Color.parseColor("#b3ffffff"));
+        try {
+            // Set cursor colour to white
+            // http://stackoverflow.com/a/26544231/1692770
+            // https://github.com/android/platform_frameworks_base/blob/kitkat-release/core/java/android/widget/TextView.java#L562-564
+            Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
+            f.setAccessible(true);
+            //f.set(toolbarSearchView, R.drawable.edittext_whitecursor);
+            f.set(toolbarSearchView, R.mipmap.ic_launcher);
+        } catch (Exception ignored) {
+        }
+        // Search text changed listener
+        toolbarSearchView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                /*Fragment mainFragment = getFragmentManager().findFragmentById(R.id.container);
+                if (mainFragment != null && mainFragment instanceof MainListFragment) {
+                    ((MainListFragment) mainFragment).search(s.toString());
+                }*/
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // http://stackoverflow.com/a/6438918/1692770
+                if (s.toString().length() <= 0) {
+                    toolbarSearchView.setHintTextColor(Color.parseColor("#b3ffffff"));
+                }
+            }
+        });
+        ((LinearLayout) searchContainer).addView(toolbarSearchView);
+
+        // Setup the clear button
+        ImageView searchClearButton = new ImageView(this);
+        Resources r = getResources();
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
+        LinearLayout.LayoutParams clearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        clearParams.gravity = Gravity.CENTER;
+        searchClearButton.setLayoutParams(clearParams);
+        //searchClearButton.setImageResource(R.drawable.ic_close_white_24dp); // TODO: Get this image from here: https://github.com/google/material-design-icons
+        searchClearButton.setImageResource(R.mipmap.ic_launcher); // TODO: Get this image from here: https://github.com/google/material-design-icons
+        searchClearButton.setPadding(px, 0, px, 0);
+        searchClearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toolbarSearchView.setText("");
+            }
+        });
+        ((LinearLayout) searchContainer).addView(searchClearButton);
+
+        // Add search view to toolbar and hide it
+        searchContainer.setVisibility(View.GONE);
+        mToolbar.addView(searchContainer);
     }
 
     //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -252,42 +475,35 @@ public class InstallInBackgroundSample extends AppCompatActivity {
 
         return dir.delete();
     }
+
     //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-    public class UrlProperty
-    {
-        public String getProtocolName(String argUrl)
-        {
+    public class UrlProperty {
+        public String getProtocolName(String argUrl) {
             String retVal = "";
-            try
-            {
+            try {
                 URL url = new URL(argUrl);
                 retVal = url.getProtocol();
                 return retVal;
-            }
-            catch (MalformedURLException e)
-            {
+            } catch (MalformedURLException e) {
                 // do something
             }
             return retVal;
         }
-        public String getHostName(String argUrl)
-        {
+
+        public String getHostName(String argUrl) {
             String retVal = "";
-            try
-            {
+            try {
                 URL url = new URL(argUrl);
                 retVal = url.getHost();
-            }
-            catch (MalformedURLException e)
-            {
+            } catch (MalformedURLException e) {
                 // do something
             }
             return retVal;
         }
     }
+
     //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-    public class UtilsFileName
-    {
+    public class UtilsFileName {
         public String removeExtension(String filename) {
             if (filename == null) {
                 return null;
@@ -304,7 +520,7 @@ public class InstallInBackgroundSample extends AppCompatActivity {
 
         /**
          * Return the file extension from a filename, including the "."
-         *
+         * <p/>
          * e.g. /path/to/myfile.jpg -> .jpg
          */
         public String getExtension(String filename) {
@@ -362,4 +578,31 @@ public class InstallInBackgroundSample extends AppCompatActivity {
     new File(absolutePath).getName();
     */
     //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.main, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+    //|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 }
+/*
+Android: remove left margin from actionbar's custom layout
+http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
+Android SearchView Action Bar Tutorial
+http://javapapers.com/android/android-searchview-action-bar-tutorial/
+http://stackoverflow.com/questions/29149268/how-to-implement-search-bar-like-gmail-app-in-android
+Android Action Bar SearchView as Autocomplete?
+http://stackoverflow.com/questions/15804805/android-action-bar-searchview-as-autocomplete
+Android Tutorial: Adding Search Suggestions
+http://www.grokkingandroid.com/android-tutorial-adding-suggestions-to-search/
+*/
