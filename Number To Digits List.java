@@ -1,4 +1,8 @@
 |------------------------------------------------------------|
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+|------------------------------------------------------------|
 public List<Integer> getNumberToDigits(int argNumber)
 {
 	List<Integer> digitList = new ArrayList<Integer>();
