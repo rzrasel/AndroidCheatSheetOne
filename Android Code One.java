@@ -34,7 +34,7 @@ public List<Integer> getNumberToDigits(int argNumber)
 	*/
 }
 |------------------------------------------------------------|
-public boolean isIntNumber(double argNumber)
+public boolean isInt(double argNumber)
 {
 	if(argNumber % 1 == 0)
 	{
@@ -42,7 +42,7 @@ public boolean isIntNumber(double argNumber)
 	}
 	return false;
 }
-public boolean isIntNumber_001(double argNumber)
+public boolean isInt_001(double argNumber)
 {
 	if((int) argNumber == argNumber)
 	{
